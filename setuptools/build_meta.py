@@ -369,7 +369,7 @@ class _BuildMetaBackend(_ConfigSettingsTranslator):
         return self._bubble_up_info_directory(metadata_directory, ".dist-info")
 
     def _build_with_temp_dir(
-        self, setup_command, result_extension, result_directory, config_settings
+        self, setup_command, result_extension, result_directory, config_settings, arbitrary_args=False
     ):
         result_directory = os.path.abspath(result_directory)
 
@@ -385,6 +385,8 @@ class _BuildMetaBackend(_ConfigSettingsTranslator):
                 "--dist-dir",
                 tmp_dist_dir,
             ]
+            if arbitrary_args:
+                sys.argv += self._arbitrary_args(config_settings)
             with no_install_setup_requires():
                 self.run_setup()
 
@@ -402,10 +404,11 @@ class _BuildMetaBackend(_ConfigSettingsTranslator):
     ):
         with suppress_known_deprecation():
             return self._build_with_temp_dir(
-                ['bdist_wheel', *self._arbitrary_args(config_settings)],
+                ['bdist_wheel'],
                 '.whl',
                 wheel_directory,
                 config_settings,
+                True,
             )
 
     def build_sdist(self, sdist_directory, config_settings=None):
